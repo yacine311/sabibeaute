@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Réservez votre rendez-vous en ligne chez Saby Beauté - Salon d'esthétique haut de gamme à Alger. Système de réservation simple et rapide.">
+    <meta name="keywords" content="réservation salon beauté Alger, prise rendez-vous esthétique Alger, booking beauté en ligne">
+    <title>Saby Beauté - Réservation en Ligne | Alger</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="booking-styles.css">
+    <link rel="stylesheet" href="booking-admin-styles.css">
+
+    <!-- Backend API Client -->
+    <script src="backend-api.js"></script>
+
+
+
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">Saby Beauté</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="#booking-system" class="active">Réservation</a></li>
+                <li><a href="#" onclick="showAdminLogin()">Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Booking System -->
+    <div id="booking-system" class="booking-container">
+        <div class="booking-header">
+            <h1>Réservez Votre Rendez-vous</h1>
+            <p>Choisissez votre service, date et heure en quelques clics</p>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="step active" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-label">Service</div>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-label">Date & Heure</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-label">Informations</div>
+            </div>
+            <div class="step" data-step="4">
+                <div class="step-number">4</div>
+                <div class="step-label">Confirmation</div>
+            </div>
+        </div>
+
+        <!-- Step 1: Service Selection -->
+        <div class="booking-step active" id="step-1">
+            <h2>Choisissez votre service</h2>
+            <div class="services-selection">
+                <div class="service-option" data-service="visage" data-duration="60" data-price="3500">
+                    <div class="service-icon">✨</div>
+                    <h3>Soins du Visage</h3>
+                    <p class="duration">Durée : 1h</p>
+                    <p class="price">À partir de 3 500 DA</p>
+                </div>
+                <div class="service-option" data-service="corporel" data-duration="90" data-price="5000">
+                    <div class="service-icon">💆</div>
+                    <h3>Soins Corporels</h3>
+                    <p class="duration">Durée : 1h30</p>
+                    <p class="price">À partir de 5 000 DA</p>
+                </div>
+                <div class="service-option" data-service="manucure" data-duration="45" data-price="2000">
+                    <div class="service-icon">💅</div>
+                    <h3>Manucure & Pédicure</h3>
+                    <p class="duration">Durée : 45min</p>
+                    <p class="price">À partir de 2 000 DA</p>
+                </div>
+                <div class="service-option" data-service="epilation" data-duration="30" data-price="800">
+                    <div class="service-icon">🌟</div>
+                    <h3>Épilation</h3>
+                    <p class="duration">Durée : 30min</p>
+                    <p class="price">À partir de 800 DA</p>
+                </div>
+                <div class="service-option" data-service="maquillage" data-duration="60" data-price="4000">
+                    <div class="service-icon">💄</div>
+                    <h3>Maquillage Professionnel</h3>
+                    <p class="duration">Durée : 1h</p>
+                    <p class="price">À partir de 4 000 DA</p>
+                </div>
+                <div class="service-option" data-service="antiage" data-duration="75" data-price="6000">
+                    <div class="service-icon">⏳</div>
+                    <h3>Soins Anti-Âge</h3>
+                    <p class="duration">Durée : 1h15</p>
+                    <p class="price">À partir de 6 000 DA</p>
+                </div>
+            </div>
+            <div class="step-actions">
+                <button class="btn-next" onclick="nextStep()" disabled>Continuer</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Calendar & Time Selection -->
+        <div class="booking-step" id="step-2">
+            <h2>Sélectionnez la date et l'heure</h2>
+            
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button class="btn-icon" onclick="previousMonth()">&lt;</button>
+                    <h3 id="current-month"></h3>
+                    <button class="btn-icon" onclick="nextMonth()">&gt;</button>
+                </div>
+                <div class="calendar-days">
+                    <div class="day-name">Dim</div>
+                    <div class="day-name">Lun</div>
+                    <div class="day-name">Mar</div>
+                    <div class="day-name">Mer</div>
+                    <div class="day-name">Jeu</div>
+                    <div class="day-name">Ven</div>
+                    <div class="day-name">Sam</div>
+                </div>
+                <div class="calendar-grid" id="calendar-grid"></div>
+            </div>
+
+            <div class="time-slots-container" id="time-slots-container" style="display: none;">
+                <h3>Créneaux disponibles</h3>
+                <div class="selected-date-info" id="selected-date-info"></div>
+                <div class="time-slots" id="time-slots"></div>
+            </div>
+
+            <div class="step-actions">
+                <button class="btn-prev" onclick="previousStep()">Retour</button>
+                <button class="btn-next" onclick="nextStep()" disabled>Continuer</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Client Information -->
+        <div class="booking-step" id="step-3">
+            <h2>Vos informations</h2>
+            
+            <div class="booking-summary">
+                <h3>Récapitulatif</h3>
+                <div class="summary-item">
+                    <span class="label">Service :</span>
+                    <span class="value" id="summary-service"></span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Date :</span>
+                    <span class="value" id="summary-date"></span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Heure :</span>
+                    <span class="value" id="summary-time"></span>
+                </div>
+                <div class="summary-item">
+                    <span class="label">Durée :</span>
+                    <span class="value" id="summary-duration"></span>
+                </div>
+                <div class="summary-item total">
+                    <span class="label">Prix :</span>
+                    <span class="value" id="summary-price"></span>
+                </div>
+            </div>
+
+            <form id="client-form" class="client-form">
+                <div class="form-group">
+                    <label for="client-name">Nom complet *</label>
+                    <input type="text" id="client-name" name="name" required placeholder="Votre nom complet">
+                </div>
+                
+                <div class="form-group">
+                    <label for="client-phone">Téléphone *</label>
+                    <input type="tel" id="client-phone" name="phone" required placeholder="+213 XXX XX XX XX" pattern="[0-9+\s\-()]+">
+                </div>
+                
+                <div class="form-group">
+                    <label for="client-email">Email</label>
+                    <input type="email" id="client-email" name="email" placeholder="votre@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="client-message">Message (optionnel)</label>
+                    <textarea id="client-message" name="message" rows="4" placeholder="Demandes particulières, allergies, etc."></textarea>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="whatsapp-notification" name="whatsapp">
+                        Recevoir une confirmation par WhatsApp
+                    </label>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="terms" name="terms" required>
+                        J'accepte les <a href="#" onclick="showTerms()">conditions générales</a> *
+                    </label>
+                </div>
+            </form>
+
+            <div class="step-actions">
+                <button class="btn-prev" onclick="previousStep()">Retour</button>
+                <button class="btn-next" onclick="submitBooking()">Confirmer le rendez-vous</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Confirmation -->
+        <div class="booking-step" id="step-4">
+            <div class="confirmation-success">
+                <div class="success-icon">✓</div>
+                <h2>Rendez-vous confirmé !</h2>
+                <p>Votre réservation a été enregistrée avec succès.</p>
+                
+                <div class="confirmation-details">
+                    <h3>Détails de votre rendez-vous</h3>
+                    <div class="detail-item">
+                        <span class="icon">📋</span>
+                        <div>
+                            <strong>Numéro de réservation</strong>
+                            <p id="confirmation-number"></p>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="icon">✨</span>
+                        <div>
+                            <strong>Service</strong>
+                            <p id="confirmation-service"></p>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="icon">📅</span>
+                        <div>
+                            <strong>Date et heure</strong>
+                            <p id="confirmation-datetime"></p>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="icon">📍</span>
+                        <div>
+                            <strong>Adresse</strong>
+                            <p>Saby Beauté<br>Centre-ville, Alger</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="confirmation-actions">
+                    <button class="btn-primary" onclick="addToCalendar()">📅 Ajouter au calendrier</button>
+                    <button class="btn-secondary" onclick="location.reload()">Nouvelle réservation</button>
+                    <button class="btn-secondary" onclick="window.location.href='index.html'">Retour à l'accueil</button>
+                </div>
+
+                <div class="confirmation-note">
+                    <p><strong>📧 Un email de confirmation vous a été envoyé.</strong></p>
+                    <p>Vous recevrez également un rappel 24h avant votre rendez-vous.</p>
+                    <p>Pour toute modification ou annulation, contactez-nous au <a href="tel:+213555123456">+213 555 12 34 56</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="admin-modal" class="modal">
+        <div class="modal-content admin-modal">
+            <span class="close-modal" onclick="closeAdminModal()">&times;</span>
+            <h2>Accès Administrateur</h2>
+            <form id="admin-login-form" onsubmit="return adminLogin(event)">
+                <div class="form-group">
+                    <label for="admin-username">Nom d'utilisateur</label>
+                    <input type="text" id="admin-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-password">Mot de passe</label>
+                    <input type="password" id="admin-password" required>
+                </div>
+                <button type="submit" class="btn-primary">Se connecter</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="admin-dashboard" style="display: none;">
+        <div class="admin-header">
+            <h1>Tableau de Bord - Saby Beauté</h1>
+            <button class="btn-logout" onclick="adminLogout()">Déconnexion</button>
+        </div>
+
+        <div class="admin-stats">
+            <div class="stat-card">
+                <h3>Aujourd'hui</h3>
+                <p class="stat-number" id="today-bookings">0</p>
+                <p class="stat-label">rendez-vous</p>
+            </div>
+            <div class="stat-card">
+                <h3>Cette semaine</h3>
+                <p class="stat-number" id="week-bookings">0</p>
+                <p class="stat-label">rendez-vous</p>
+            </div>
+            <div class="stat-card">
+                <h3>Ce mois</h3>
+                <p class="stat-number" id="month-bookings">0</p>
+                <p class="stat-label">rendez-vous</p>
+            </div>
+        </div>
+
+        <div class="admin-content">
+            <div class="admin-tabs">
+                <button class="tab-btn active" onclick="showAdminTab('calendar')">📅 Calendrier</button>
+                <button class="tab-btn" onclick="showAdminTab('bookings')">📋 Réservations</button>
+                <button class="tab-btn" onclick="showAdminTab('settings')">⚙️ Paramètres</button>
+            </div>
+
+            <!-- Admin Calendar Tab -->
+            <div id="admin-calendar-tab" class="admin-tab active">
+                <div class="admin-calendar">
+                    <div class="calendar-controls">
+                        <button class="btn-icon" onclick="adminPreviousMonth()">&lt;</button>
+                        <h3 id="admin-current-month"></h3>
+                        <button class="btn-icon" onclick="adminNextMonth()">&gt;</button>
+                    </div>
+                    <div id="admin-calendar-grid" class="admin-calendar-grid"></div>
+                </div>
+                <div class="day-schedule" id="day-schedule">
+                    <h3>Rendez-vous du jour</h3>
+                    <p class="no-bookings">Sélectionnez une date pour voir les rendez-vous</p>
+                </div>
+            </div>
+
+            <!-- Admin Bookings Tab -->
+            <div id="admin-bookings-tab" class="admin-tab">
+                <div class="bookings-filters">
+                    <input type="date" id="filter-date" onchange="filterBookings()">
+                    <select id="filter-service" onchange="filterBookings()">
+                        <option value="">Tous les services</option>
+                        <option value="visage">Soins du visage</option>
+                        <option value="corporel">Soins corporels</option>
+                        <option value="manucure">Manucure & Pédicure</option>
+                        <option value="epilation">Épilation</option>
+                        <option value="maquillage">Maquillage professionnel</option>
+                        <option value="antiage">Soins anti-âge</option>
+                    </select>
+                    <button class="btn-export" onclick="exportBookings()">📊 Exporter</button>
+                </div>
+                <div class="bookings-list" id="bookings-list">
+                    <p class="no-bookings">Aucune réservation pour le moment</p>
+                </div>
+            </div>
+
+            <!-- Admin Settings Tab -->
+            <div id="admin-settings-tab" class="admin-tab">
+                <div class="settings-section">
+                    <h3>Horaires d'ouverture</h3>
+                    <form id="hours-form">
+                        <div class="hours-grid">
+                            <div class="hour-item">
+                                <label>Dimanche</label>
+                                <input type="time" name="sunday-open" value="09:00">
+                                <input type="time" name="sunday-close" value="19:00">
+                                <label><input type="checkbox" name="sunday-closed"> Fermé</label>
+                            </div>
+                            <div class="hour-item">
+                                <label>Lundi</label>
+                                <input type="time" name="monday-open" value="09:00">
+                                <input type="time" name="monday-close" value="19:00">
+                            </div>
+                            <div class="hour-item">
+                                <label>Mardi</label>
+                                <input type="time" name="tuesday-open" value="09:00">
+                                <input type="time" name="tuesday-close" value="19:00">
+                            </div>
+                            <div class="hour-item">
+                                <label>Mercredi</label>
+                                <input type="time" name="wednesday-open" value="09:00">
+                                <input type="time" name="wednesday-close" value="19:00">
+                            </div>
+                            <div class="hour-item">
+                                <label>Jeudi</label>
+                                <input type="time" name="thursday-open" value="09:00">
+                                <input type="time" name="thursday-close" value="19:00">
+                            </div>
+                            <div class="hour-item">
+                                <label>Vendredi</label>
+                                <input type="time" name="friday-open" value="09:00">
+                                <input type="time" name="friday-close" value="19:00">
+                                <label><input type="checkbox" name="friday-closed" checked> Fermé</label>
+                            </div>
+                            <div class="hour-item">
+                                <label>Samedi</label>
+                                <input type="time" name="saturday-open" value="09:00">
+                                <input type="time" name="saturday-close" value="18:00">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary">Enregistrer les horaires</button>
+                    </form>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Jours de fermeture exceptionnels</h3>
+                    <div class="closed-days-list" id="closed-days-list"></div>
+                    <form id="add-closed-day-form" onsubmit="return addClosedDay(event)">
+                        <input type="date" id="closed-day-date" required>
+                        <input type="text" id="closed-day-reason" placeholder="Raison (optionnel)">
+                        <button type="submit" class="btn-primary">Ajouter</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="booking-script.js"></script>
+</body>
+</html>

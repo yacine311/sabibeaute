@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Salon d'esthétique haut de gamme à Alger - Soins du visage, soins corporels, manucure, pédicure, épilation, maquillage professionnel et soins anti-âge. Institut de beauté luxueux.">
+    <meta name="keywords" content="salon esthétique Alger, institut de beauté Alger, soins visage Alger, spa Alger, manucure Alger, pédicure Alger, épilation Alger, maquillage professionnel Alger, soins anti-âge Alger, centre beauté Alger">
+    <title>Saby Beauté - Salon d'Esthétique Haut de Gamme | Alger</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">Saby Beauté</a>
+            <button class="mobile-menu-btn" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#accueil">Accueil</a></li>
+                <li><a href="#about">À Propos</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="saby-beaute-reservation.html">Réservation</a></li>
+                <li><a href="#gallery">Galerie</a></li>
+                <li><a href="#testimonials">Avis</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="accueil" class="hero">
+        <div class="hero-content">
+            <h1>Saby Beauté</h1>
+            <p class="tagline">L'art de sublimer votre beauté naturelle</p>
+            <p>Découvrez notre univers de bien-être et d'élégance au cœur d'Alger. Un lieu où luxe, expertise et sérénité se rencontrent pour révéler votre plus belle version.</p>
+            <a href="#" class="cta-button" onclick="openBooking()">Prendre Rendez-vous</a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <h2 class="section-title">À Propos</h2>
+        <p class="section-subtitle">Notre philosophie et notre excellence</p>
+        <div class="about-content">
+            <div class="about-text">
+                <h3>Votre sanctuaire de beauté à Alger</h3>
+                <p>Saby Beauté est né d'une passion pour l'art de l'esthétique et le désir de créer un havre de paix où chaque cliente se sent unique et précieuse. Notre équipe d'esthéticiennes expertes, formées aux techniques les plus avancées, met son savoir-faire à votre service.</p>
+                <p>Dans un cadre raffiné et apaisant, nous vous proposons des soins sur mesure qui allient tradition et innovation. Chaque traitement est pensé pour respecter votre peau et sublimer votre beauté naturelle.</p>
+                <p>Notre engagement : vous offrir une expérience exceptionnelle où qualité, hygiène et bien-être sont nos priorités absolues. Nous utilisons exclusivement des produits haut de gamme, soigneusement sélectionnés pour leur efficacité et leur douceur.</p>
+            </div>
+            <div class="about-image">
+                <img src="https://images.unsplash.com/photo-1560750588-73207b1ef5b8?w=800&h=600&fit=crop" alt="Salon Saby Beauté Alger">
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services">
+        <h2 class="section-title">Nos Services</h2>
+        <p class="section-subtitle">Des soins d'exception pour chaque besoin</p>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">✨</div>
+                <h3>Soins du Visage</h3>
+                <p>Nettoyage en profondeur, hydratation intense, et traitements personnalisés pour révéler l'éclat de votre peau. Utilisation de produits premium adaptés à votre type de peau.</p>
+                <p class="service-price">À partir de 3 500 DA</p>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">💆</div>
+                <h3>Soins Corporels</h3>
+                <p>Gommages luxueux, enveloppements nourrissants et massages relaxants pour une peau douce et régénérée. Une expérience sensorielle unique.</p>
+                <p class="service-price">À partir de 5 000 DA</p>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">💅</div>
+                <h3>Manucure & Pédicure</h3>
+                <p>Soins complets des mains et des pieds, pose de vernis semi-permanent, nail art raffiné. Des ongles impeccables avec des produits de qualité professionnelle.</p>
+                <p class="service-price">À partir de 2 000 DA</p>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">🌟</div>
+                <h3>Épilation</h3>
+                <p>Techniques d'épilation douce et efficace pour une peau lisse et soyeuse. Épilation à la cire, orientale ou au fil selon vos préférences.</p>
+                <p class="service-price">À partir de 800 DA</p>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">💄</div>
+                <h3>Maquillage Professionnel</h3>
+                <p>Maquillage personnalisé pour tous vos événements : mariages, soirées, séances photos. Expertise en maquillage naturel et glamour.</p>
+                <p class="service-price">À partir de 4 000 DA</p>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">⏳</div>
+                <h3>Soins Anti-Âge</h3>
+                <p>Traitements avancés pour préserver la jeunesse de votre peau : sérums concentrés, massages du visage, techniques de lifting naturel.</p>
+                <p class="service-price">À partir de 6 000 DA</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery">
+        <h2 class="section-title">Galerie</h2>
+        <p class="section-subtitle">Découvrez nos réalisations et notre univers</p>
+        <div class="gallery-grid">
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1519415387722-a1c3bbef716c?w=600&h=400&fit=crop" alt="Soin du visage">
+                <div class="gallery-caption">
+                    <h4>Soins du Visage</h4>
+                    <p>Éclat retrouvé</p>
+                </div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?w=600&h=400&fit=crop" alt="Manucure luxe">
+                <div class="gallery-caption">
+                    <h4>Manucure Luxe</h4>
+                    <p>Élégance au bout des doigts</p>
+                </div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=600&h=400&fit=crop" alt="Ambiance salon">
+                <div class="gallery-caption">
+                    <h4>Notre Salon</h4>
+                    <p>Un cadre apaisant</p>
+                </div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=600&h=400&fit=crop" alt="Maquillage professionnel">
+                <div class="gallery-caption">
+                    <h4>Maquillage Pro</h4>
+                    <p>Sublimez votre beauté</p>
+                </div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1595182012393-0fe84acaa1dc?w=600&h=400&fit=crop" alt="Soins corporels">
+                <div class="gallery-caption">
+                    <h4>Soins Corporels</h4>
+                    <p>Détente absolue</p>
+                </div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&h=400&fit=crop" alt="Produits premium">
+                <div class="gallery-caption">
+                    <h4>Produits Premium</h4>
+                    <p>Excellence garantie</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials">
+        <h2 class="section-title">Avis Clients</h2>
+        <p class="section-subtitle">Ce que disent nos clientes</p>
+        <div class="testimonials-container">
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Une expérience exceptionnelle ! L'équipe est professionnelle et attentionnée. Mon soin du visage a transformé ma peau. Le cadre est magnifique et l'ambiance relaxante. Je recommande vivement Saby Beauté !"</p>
+                <div class="testimonial-author">
+                    <div>
+                        <p class="author-name">Samira K.</p>
+                        <div class="stars">★★★★★</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Le meilleur salon d'esthétique d'Alger ! Les esthéticiennes sont expertes et utilisent des produits de haute qualité. Mon maquillage de mariage était absolument parfait. Merci pour ce moment magique !"</p>
+                <div class="testimonial-author">
+                    <div>
+                        <p class="author-name">Yasmine B.</p>
+                        <div class="stars">★★★★★</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Je suis cliente depuis 2 ans et je ne vais nulle part ailleurs. Les soins anti-âge sont vraiment efficaces. L'accueil est chaleureux et le professionnalisme irréprochable. Un vrai moment de détente !"</p>
+                <div class="testimonial-author">
+                    <div>
+                        <p class="author-name">Leila M.</p>
+                        <div class="stars">★★★★★</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <h2 class="section-title">Contact</h2>
+        <p class="section-subtitle">Prenez rendez-vous dès maintenant</p>
+        <div class="contact-container">
+            <div class="contact-info">
+                <div class="contact-item">
+                    <div class="contact-icon">📍</div>
+                    <div class="contact-details">
+                        <h4>Adresse</h4>
+                        <p>Centre-ville, Alger<br>Algérie</p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">📞</div>
+                    <div class="contact-details">
+                        <h4>Téléphone</h4>
+                        <p><a href="tel:+213659006306">+213 659 00 63 06</a></p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">💬</div>
+                    <div class="contact-details">
+                        <h4>WhatsApp</h4>
+                        <p><a href="https://wa.me/213659006306" target="_blank">+213 659 00 63 06</a></p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">✉️</div>
+                    <div class="contact-details">
+                        <h4>Email</h4>
+                        <p><a href="mailto:aminesmousi40@gmail.com">aminesmousi40@gmail.com</a></p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">🕐</div>
+                    <div class="contact-details">
+                        <h4>Horaires</h4>
+                        <p>Dimanche - Samedi : 9h - 17h</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-form">
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Nom complet *</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Téléphone *</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="service">Service souhaité</label>
+                        <select id="service" name="service">
+                            <option value="">Sélectionnez un service</option>
+                            <option value="visage">Soins du visage</option>
+                            <option value="corporel">Soins corporels</option>
+                            <option value="manucure">Manucure & Pédicure</option>
+                            <option value="epilation">Épilation</option>
+                            <option value="maquillage">Maquillage professionnel</option>
+                            <option value="antiage">Soins anti-âge</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="4"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Envoyer</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Map -->
+        <div class="map-container">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3195.3904647869063!2d3.0111406!3d36.7851875!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x128fb1002e94a5fd%3A0xd21d659866c9b1b9!2sSaby%20beaut%C3%A9!5e0!3m2!1sfr!2sfr!4v1772533363560!5m2!1sfr!2sfr" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Saby Beauté</h3>
+                <p>Votre destination beauté de luxe à Alger. Excellence, élégance et expertise pour sublimer votre beauté naturelle.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook">📘</a>
+                    <a href="#" aria-label="Instagram">📷</a>
+                    <a href="#" aria-label="WhatsApp">💬</a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Liens Rapides</h3>
+                <p><a href="#accueil">Accueil</a></p>
+                <p><a href="#about">À Propos</a></p>
+                <p><a href="#services">Services</a></p>
+                <p><a href="#contact">Contact</a></p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Nos Services</h3>
+                <p><a href="#services">Soins du visage</a></p>
+                <p><a href="#services">Soins corporels</a></p>
+                <p><a href="#services">Manucure & Pédicure</a></p>
+                <p><a href="#services">Maquillage professionnel</a></p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <p>📍 Centre-ville, Alger</p>
+                <p>📞 <a href="tel:+213659006306">+213 659 00 63 06</a></p>
+                <p>✉️ <a href="mailto:aminesmousi40@gmail.com">aminesmousi40@gmail.com</a></p>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2026 Saby Beauté - Salon d'esthétique haut de gamme Alger. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Float Button -->
+    <a href="https://wa.me/213659006306?text=Bonjour,%20je%20souhaite%20prendre%20rendez-vous" class="whatsapp-float" target="_blank" aria-label="Contactez-nous sur WhatsApp">
+        💬
+    </a>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeBooking()">&times;</span>
+            <h2>Réservation en ligne</h2>
+            <form id="bookingForm">
+                <div class="form-group">
+                    <label for="booking-name">Nom complet *</label>
+                    <input type="text" id="booking-name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="booking-phone">Téléphone *</label>
+                    <input type="tel" id="booking-phone" name="phone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="booking-email">Email</label>
+                    <input type="email" id="booking-email" name="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="booking-service">Service *</label>
+                    <select id="booking-service" name="service" required>
+                        <option value="">Sélectionnez un service</option>
+                        <option value="visage">Soins du visage</option>
+                        <option value="corporel">Soins corporels</option>
+                        <option value="manucure">Manucure & Pédicure</option>
+                        <option value="epilation">Épilation</option>
+                        <option value="maquillage">Maquillage professionnel</option>
+                        <option value="antiage">Soins anti-âge</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="booking-date">Date souhaitée *</label>
+                    <input type="date" id="booking-date" name="date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="booking-time">Heure souhaitée *</label>
+                    <select id="booking-time" name="time" required>
+                        <option value="">Sélectionnez un créneau</option>
+                        <option value="09:00">09:00</option>
+                        <option value="10:00">10:00</option>
+                        <option value="11:00">11:00</option>
+                        <option value="12:00">12:00</option>
+                        <option value="14:00">14:00</option>
+                        <option value="15:00">15:00</option>
+                        <option value="16:00">16:00</option>
+                        <option value="17:00">17:00</option>
+                        <option value="18:00">18:00</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="booking-message">Demandes particulières</label>
+                    <textarea id="booking-message" name="message" rows="3"></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">Confirmer la réservation</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript externe -->
+    <script src="script.js"></script>
+</body>
+</html>
