@@ -27,7 +27,7 @@ Système de prise de rendez-vous professionnel pour le salon d'esthétique Saby 
   2. Sélection de la date et l'heure
   3. Informations personnelles
   4. Confirmation du rendez-vous
-
+  
 - **Notifications automatiques**
   - Email de confirmation immédiat
   - Option WhatsApp disponible
