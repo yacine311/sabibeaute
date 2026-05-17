@@ -2,7 +2,7 @@ const admin = require('firebase-admin');
 
 // Initialiser Firebase (utilise les variables d'environnement Netlify)
 if (!admin.apps.length) {
-  let firebaseConfig;
+  let serviceAccount;
   
   console.log('🔍 VARIABLES DISPONIBLES:');
   console.log('- FIREBASE_CREDENTIALS_BASE64:', process.env.FIREBASE_CREDENTIALS_BASE64 ? 'OUI (length: ' + process.env.FIREBASE_CREDENTIALS_BASE64.length + ')' : 'NON');
@@ -15,7 +15,7 @@ if (!admin.apps.length) {
     try {
       console.log('📝 Décodage Base64...');
       const decoded = Buffer.from(process.env.FIREBASE_CREDENTIALS_BASE64, 'base64').toString('utf8');
-      firebaseConfig = JSON.parse(decoded);
+      serviceAccount = JSON.parse(decoded);
       console.log('✅ Base64 décodé avec succès');
     } catch (error) {
       console.error('❌ Erreur décodage Base64:', error.message);
@@ -23,27 +23,28 @@ if (!admin.apps.length) {
     }
   } else {
     console.log('⚠️ FIREBASE_CREDENTIALS_BASE64 non trouvée, utilisation des variables individuelles');
-    // Fallback: utiliser les variables individuelles
-    firebaseConfig = {
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY
+    // Fallback: construire le serviceAccount depuis les variables individuelles
+    serviceAccount = {
+      type: 'service_account',
+      project_id: process.env.FIREBASE_PROJECT_ID,
+      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID || 'unknown',
+      private_key: process.env.FIREBASE_PRIVATE_KEY
         ?.replace(/\\n/g, '\n')
         .replace(/\n/g, '\n')
         .split('\n')
         .map(line => line.trim())
         .filter(line => line.length > 0)
-        .join('\n')
+        .join('\n'),
+      client_email: process.env.FIREBASE_CLIENT_EMAIL
     };
   }
   
-  console.log('🚀 Initialisation Firebase avec projectId:', firebaseConfig.project_id);
+  console.log('🚀 Initialisation Firebase avec projectId:', serviceAccount.project_id);
   
   try {
     admin.initializeApp({
-      projectId: firebaseConfig.project_id,
-      clientEmail: firebaseConfig.client_email,
-      privateKey: firebaseConfig.private_key
+      credential: admin.credential.cert(serviceAccount),
+      projectId: serviceAccount.project_id
     });
     console.log('✅ Firebase initialisé avec succès');
   } catch (error) {
