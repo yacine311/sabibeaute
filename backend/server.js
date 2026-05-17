@@ -8,10 +8,36 @@ app.use(cors());
 app.use(express.json());
 
 // Initialize Firebase Admin (utilise variables d'environnement)
+let firebaseConfig;
+
+// Essayer de décoder depuis FIREBASE_CREDENTIALS_BASE64
+if (process.env.FIREBASE_CREDENTIALS_BASE64) {
+  try {
+    const decoded = Buffer.from(process.env.FIREBASE_CREDENTIALS_BASE64, 'base64').toString('utf8');
+    firebaseConfig = JSON.parse(decoded);
+  } catch (error) {
+    console.error('Erreur décodage Base64:', error);
+    process.exit(1);
+  }
+} else {
+  // Fallback: utiliser les variables individuelles
+  firebaseConfig = {
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY
+      ?.replace(/\\n/g, '\n')
+      .replace(/\n/g, '\n')
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .join('\n')
+  };
+}
+
 admin.initializeApp({
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+  projectId: firebaseConfig.project_id,
+  clientEmail: firebaseConfig.client_email,
+  privateKey: firebaseConfig.private_key
 });
 
 const db = admin.firestore();

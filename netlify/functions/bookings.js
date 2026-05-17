@@ -2,11 +2,54 @@ const admin = require('firebase-admin');
 
 // Initialiser Firebase (utilise les variables d'environnement Netlify)
 if (!admin.apps.length) {
-  admin.initializeApp({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
-  });
+  let firebaseConfig;
+  
+  console.log('🔍 VARIABLES DISPONIBLES:');
+  console.log('- FIREBASE_CREDENTIALS_BASE64:', process.env.FIREBASE_CREDENTIALS_BASE64 ? 'OUI (length: ' + process.env.FIREBASE_CREDENTIALS_BASE64.length + ')' : 'NON');
+  console.log('- FIREBASE_PROJECT_ID:', process.env.FIREBASE_PROJECT_ID ? 'OUI' : 'NON');
+  console.log('- FIREBASE_CLIENT_EMAIL:', process.env.FIREBASE_CLIENT_EMAIL ? 'OUI' : 'NON');
+  console.log('- FIREBASE_PRIVATE_KEY:', process.env.FIREBASE_PRIVATE_KEY ? 'OUI' : 'NON');
+  
+  // Essayer de décoder depuis FIREBASE_CREDENTIALS_BASE64
+  if (process.env.FIREBASE_CREDENTIALS_BASE64) {
+    try {
+      console.log('📝 Décodage Base64...');
+      const decoded = Buffer.from(process.env.FIREBASE_CREDENTIALS_BASE64, 'base64').toString('utf8');
+      firebaseConfig = JSON.parse(decoded);
+      console.log('✅ Base64 décodé avec succès');
+    } catch (error) {
+      console.error('❌ Erreur décodage Base64:', error.message);
+      throw new Error('Impossible de décoder FIREBASE_CREDENTIALS_BASE64: ' + error.message);
+    }
+  } else {
+    console.log('⚠️ FIREBASE_CREDENTIALS_BASE64 non trouvée, utilisation des variables individuelles');
+    // Fallback: utiliser les variables individuelles
+    firebaseConfig = {
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY
+        ?.replace(/\\n/g, '\n')
+        .replace(/\n/g, '\n')
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .join('\n')
+    };
+  }
+  
+  console.log('🚀 Initialisation Firebase avec projectId:', firebaseConfig.project_id);
+  
+  try {
+    admin.initializeApp({
+      projectId: firebaseConfig.project_id,
+      clientEmail: firebaseConfig.client_email,
+      privateKey: firebaseConfig.private_key
+    });
+    console.log('✅ Firebase initialisé avec succès');
+  } catch (error) {
+    console.error('❌ Erreur initialisation Firebase:', error.message);
+    throw error;
+  }
 }
 
 const db = admin.firestore();
