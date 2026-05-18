@@ -1,4 +1,6 @@
 // Authentification Admin
+const jwt = require('jsonwebtoken');
+
 const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -27,6 +29,17 @@ exports.handler = async (event, context) => {
 
     const adminUsername = process.env.ADMIN_USERNAME || 'admin';
     const adminPassword = process.env.ADMIN_PASSWORD || 'saby2024';
+    const jwtSecret = process.env.JWT_SECRET;
+
+    // Vérifier que JWT_SECRET existe
+    if (!jwtSecret) {
+      console.error('❌ JWT_SECRET non configurée');
+      return {
+        statusCode: 500,
+        headers: cors,
+        body: JSON.stringify({ error: 'Erreur serveur: JWT_SECRET manquante' })
+      };
+    }
 
     // Vérifier les identifiants
     if (username !== adminUsername || password !== adminPassword) {
@@ -37,9 +50,16 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Générer un token (simple mais efficace)
-    // En production, utilisez JWT
-    const token = Buffer.from(`${username}:${Date.now()}`).toString('base64');
+    // Générer un JWT signé (au lieu d'un simple Base64)
+    const token = jwt.sign(
+      {
+        username,
+        role: 'admin',
+        iat: Math.floor(Date.now() / 1000)  // Heure de création
+      },
+      jwtSecret,
+      { expiresIn: '1h' }  // Expire après 1 heure
+    );
 
     console.log('✅ Admin connecté:', username);
 

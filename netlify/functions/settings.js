@@ -1,4 +1,5 @@
 const admin = require('firebase-admin');
+const jwt = require('jsonwebtoken');
 
 // Initialiser Firebase
 if (!admin.apps.length) {
@@ -38,16 +39,39 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
+// Fonction pour vérifier le JWT
+function verifyAdminToken(token) {
+  if (!token) {
+    return { valid: false, error: 'Token manquant' };
+  }
+
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    console.error('❌ JWT_SECRET non configurée');
+    return { valid: false, error: 'Erreur serveur: JWT_SECRET manquante' };
+  }
+
+  try {
+    const decoded = jwt.verify(token, jwtSecret);
+    
+    if (decoded.role !== 'admin') {
+      return { valid: false, error: 'Accès refusé: pas admin' };
+    }
+    
+    return { valid: true, decoded };
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return { valid: false, error: 'Token expiré' };
+    }
+    return { valid: false, error: 'Token invalide' };
+  }
+}
+
 const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization'
 };
-
-// Vérifier si c'est un admin
-function isAdmin(token) {
-  return token && token.includes('admin');
-}
 
 exports.handler = async (event, context) => {
   if (event.httpMethod === 'OPTIONS') {
@@ -74,12 +98,13 @@ exports.handler = async (event, context) => {
     // PUT : Mettre à jour les paramètres (admin seulement)
     if (event.httpMethod === 'PUT') {
       const token = event.headers.authorization?.split(' ')[1];
+      const verifyResult = verifyAdminToken(token);
 
-      if (!isAdmin(token)) {
+      if (!verifyResult.valid) {
         return {
-          statusCode: 403,
+          statusCode: 401,
           headers: cors,
-          body: JSON.stringify({ error: 'Non autorisé' })
+          body: JSON.stringify({ error: verifyResult.error })
         };
       }
 

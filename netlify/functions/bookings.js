@@ -1,4 +1,5 @@
 const admin = require('firebase-admin');
+const jwt = require('jsonwebtoken');
 
 // Initialiser Firebase (utilise les variables d'environnement Netlify)
 if (!admin.apps.length) {
@@ -54,6 +55,34 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
+
+// Fonction pour vérifier le JWT
+function verifyAdminToken(token) {
+  if (!token) {
+    return { valid: false, error: 'Token manquant' };
+  }
+
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    console.error('❌ JWT_SECRET non configurée');
+    return { valid: false, error: 'Erreur serveur: JWT_SECRET manquante' };
+  }
+
+  try {
+    const decoded = jwt.verify(token, jwtSecret);
+    
+    if (decoded.role !== 'admin') {
+      return { valid: false, error: 'Accès refusé: pas admin' };
+    }
+    
+    return { valid: true, decoded };
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return { valid: false, error: 'Token expiré' };
+    }
+    return { valid: false, error: 'Token invalide' };
+  }
+}
 
 // Helper pour CORS
 const cors = {
@@ -151,20 +180,22 @@ exports.handler = async (event, context) => {
 
     // DELETE : Supprimer une réservation (admin)
     if (method === 'DELETE') {
-      // Vérifier le token admin
+      // Vérifier le token JWT
       const token = event.headers.authorization?.split(' ')[1];
-      const adminPassword = process.env.ADMIN_PASSWORD;
-
-      if (!token || !token.includes('admin')) {
+      const verifyResult = verifyAdminToken(token);
+      
+      if (!verifyResult.valid) {
         return {
-          statusCode: 403,
+          statusCode: 401,
           headers: cors,
-          body: JSON.stringify({ error: 'Non autorisé' })
+          body: JSON.stringify({ error: verifyResult.error })
         };
       }
 
       const bookingId = event.path.split('/').pop();
       await db.collection('bookings').doc(bookingId).delete();
+
+      console.log('✅ Réservation supprimée:', bookingId);
 
       return {
         statusCode: 200,

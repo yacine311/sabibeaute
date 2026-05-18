@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
@@ -46,6 +47,7 @@ const db = admin.firestore();
 // ============ AUTHENTIFICATION ADMIN ============
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = process.env.ADMIN_PASSWORD;
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body;
@@ -54,18 +56,41 @@ app.post('/api/admin/login', (req, res) => {
     return res.status(401).json({ error: 'Identifiants incorrects' });
   }
   
-  // Générer un token simple (à remplacer par JWT en production)
-  const token = Buffer.from(`${username}:${Date.now()}`).toString('base64');
+  // Générer un JWT signé
+  const token = jwt.sign(
+    {
+      username,
+      role: 'admin',
+      iat: Math.floor(Date.now() / 1000)
+    },
+    JWT_SECRET,
+    { expiresIn: '1h' }
+  );
+  
   res.json({ token, expiresIn: 3600 });
 });
 
-// Middleware pour vérifier le token admin
+// Middleware pour vérifier le JWT admin
 const verifyAdmin = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
-  if (!token || !token.startsWith(ADMIN_USER)) {
-    return res.status(403).json({ error: 'Non autorisé' });
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Token manquant' });
   }
-  next();
+  
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.role !== 'admin') {
+      return res.status(403).json({ error: 'Accès refusé: pas admin' });
+    }
+    req.user = decoded;
+    next();
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expiré' });
+    }
+    return res.status(401).json({ error: 'Token invalide' });
+  }
 };
 
 // ============ RÉSERVATIONS ============
