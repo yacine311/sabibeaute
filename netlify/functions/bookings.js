@@ -84,6 +84,63 @@ function verifyAdminToken(token) {
   }
 }
 
+// Fonction pour valider une réservation
+function validateBooking(data) {
+  const errors = [];
+  
+  // Nom
+  if (!data.name || typeof data.name !== 'string') {
+    errors.push('Nom requis et doit être une chaîne');
+  } else if (data.name.trim().length < 2) {
+    errors.push('Nom trop court (min 2 caractères)');
+  } else if (data.name.length > 100) {
+    errors.push('Nom trop long (max 100 caractères)');
+  }
+  
+  // Téléphone
+  if (!data.phone || typeof data.phone !== 'string') {
+    errors.push('Téléphone requis et doit être une chaîne');
+  } else if (!/^[0-9+\s\-()]{10,}$/.test(data.phone)) {
+    errors.push('Téléphone invalide (format: +213 123 456 789)');
+  }
+  
+  // Email
+  if (!data.email || typeof data.email !== 'string') {
+    errors.push('Email requis et doit être une chaîne');
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+    errors.push('Email invalide');
+  }
+  
+  // Service
+  const validServices = ['visage', 'corporel', 'manucure', 'epilation', 'maquillage', 'antiage'];
+  if (!data.service || !validServices.includes(data.service)) {
+    errors.push(`Service invalide. Valides: ${validServices.join(', ')}`);
+  }
+  
+  // Date (format YYYY-MM-DD)
+  if (!data.date || typeof data.date !== 'string') {
+    errors.push('Date requise et doit être une chaîne');
+  } else if (!/^\d{4}-\d{2}-\d{2}$/.test(data.date)) {
+    errors.push('Date invalide (format: YYYY-MM-DD)');
+  } else {
+    const dateObj = new Date(data.date);
+    if (isNaN(dateObj.getTime())) {
+      errors.push('Date invalide');
+    } else if (dateObj < new Date()) {
+      errors.push('La date ne peut pas être dans le passé');
+    }
+  }
+  
+  // Heure (format HH:MM)
+  if (!data.time || typeof data.time !== 'string') {
+    errors.push('Heure requise et doit être une chaîne');
+  } else if (!/^\d{2}:\d{2}$/.test(data.time)) {
+    errors.push('Heure invalide (format: HH:MM)');
+  }
+  
+  return errors;
+}
+
 // Helper pour CORS
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -110,12 +167,13 @@ exports.handler = async (event, context) => {
     if (method === 'POST') {
       const { name, phone, email, service, date, time, duration, price, message, whatsapp } = body;
 
-      // Validation
-      if (!name || !phone || !service || !date || !time) {
+      // Validation complète
+      const validationErrors = validateBooking({ name, phone, email, service, date, time });
+      if (validationErrors.length > 0) {
         return {
           statusCode: 400,
           headers: cors,
-          body: JSON.stringify({ error: 'Données manquantes' })
+          body: JSON.stringify({ error: 'Validation échouée', details: validationErrors })
         };
       }
 
@@ -133,11 +191,11 @@ exports.handler = async (event, context) => {
         };
       }
 
-      // Créer la réservation
+      // Créer la réservation (avec sanitization basique)
       const bookingId = 'RDV' + Date.now().toString(36).toUpperCase();
       const booking = {
         id: bookingId,
-        name: name.trim(),
+        name: name.trim(),  // trim() enlève les espaces
         phone: phone.trim(),
         email: email?.trim() || '',
         service,
@@ -145,7 +203,7 @@ exports.handler = async (event, context) => {
         time,
         duration: parseInt(duration),
         price: parseInt(price),
-        message: message?.trim() || '',
+        message: (message?.trim() || '').substring(0, 500),  // Limiter à 500 chars
         whatsapp: !!whatsapp,
         createdAt: new Date().toISOString(),
         status: 'confirmed'
