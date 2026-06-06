@@ -12,3 +12,25 @@ port = 8888
 from = "/api/*"
 to = "/.netlify/functions/:splat"
 status = 200
+
+# Headers de sécurité
+[[headers]]
+for = "/*"
+[headers.values]
+  # Empêcher le clickjacking
+  X-Frame-Options = "DENY"
+  
+  # Empêcher le MIME type sniffing
+  X-Content-Type-Options = "nosniff"
+  
+  # Protection XSS (pour anciens navigateurs)
+  X-XSS-Protection = "1; mode=block"
+  
+  # Referrer Policy
+  Referrer-Policy = "strict-origin-when-cross-origin"
+  
+  # Permissions Policy (anciennement Feature-Policy)
+  Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+  
+  # Content Security Policy
+  Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://calendar.google.com; frame-ancestors 'none'"

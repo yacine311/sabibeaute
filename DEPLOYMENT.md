@@ -58,6 +58,19 @@ Netlify déploiera automatiquement !
 
 ## 🔐 Sécurité
 
+### Headers de sécurité HTTP
+
+Tous les headers sont configurés dans `netlify.toml` :
+
+| Header | Fonction |
+|--------|----------|
+| `X-Frame-Options: DENY` | Empêche le clickjacking (iframes) |
+| `X-Content-Type-Options: nosniff` | Empêche le MIME type sniffing |
+| `X-XSS-Protection: 1; mode=block` | Protection XSS pour anciens navigateurs |
+| `Content-Security-Policy` | Contrôle les ressources autorisées (scripts, images, etc.) |
+| `Referrer-Policy` | Contrôle les infos de référent envoyées |
+| `Permissions-Policy` | Désactive géolocalisation, microphone, caméra |
+
 ### Rate Limiting
 
 Le rate limiting est implémenté pour prévenir les abus :
