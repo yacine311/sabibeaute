@@ -8,7 +8,7 @@ const appState = {
     selectedPrice: 0,
     currentMonth: new Date().getMonth(),
     currentYear: new Date().getFullYear(),
-    bookings: JSON.parse(localStorage.getItem('bookings')) || [],
+    bookings: [],
     closedDays: JSON.parse(localStorage.getItem('closedDays')) || [],
     businessHours: JSON.parse(localStorage.getItem('businessHours')) || {
         sunday: { open: '09:00', close: '19:00', closed: false },
@@ -25,7 +25,6 @@ async function loadBookingsFromDatabase() {
     try {
         const bookings = await BookingAPI.getBookings();
         appState.bookings = bookings.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
-        localStorage.setItem('bookings', JSON.stringify(appState.bookings));
         console.log(`Chargé ${appState.bookings.length} réservations depuis l'API`);
         
         // Rafraîchir le calendrier avec les nouvelles données
@@ -33,8 +32,8 @@ async function loadBookingsFromDatabase() {
             renderCalendar();
         }
     } catch (error) {
-        console.warn('Impossible de charger depuis l\'API, utilisation de localStorage');
-        appState.bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+        console.warn('Impossible de charger depuis l\'API, les réservations ne sont pas conservées localement', error);
+        appState.bookings = [];
     }
 }
 
@@ -74,6 +73,15 @@ const serviceNames = {
     'maquillage': 'Maquillage Professionnel',
     'antiage': 'Soins Anti-Âge'
 };
+
+function escapeHTML(text) {
+    return String(text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
@@ -375,7 +383,6 @@ function submitBooking() {
     };
     
     appState.bookings.push(booking);
-    localStorage.setItem('bookings', JSON.stringify(appState.bookings));
     saveBookingToDatabase(booking).catch(error => {
         console.error('Erreur d’enregistrement Firestore:', error);
     });
@@ -662,21 +669,21 @@ function showDaySchedule(date, bookings) {
     bookings.sort((a, b) => a.time.localeCompare(b.time));
     
     scheduleEl.innerHTML = `
-        <h3>Rendez-vous du ${dateStr}</h3>
+        <h3>Rendez-vous du ${escapeHTML(dateStr)}</h3>
         <div class="day-bookings-list">
             ${bookings.map(booking => `
                 <div class="day-booking-item">
-                    <div class="booking-time">${booking.time}</div>
+                    <div class="booking-time">${escapeHTML(booking.time)}</div>
                     <div class="booking-details">
-                        <h4>${booking.serviceName}</h4>
-                        <p><strong>${booking.name}</strong></p>
-                        <p>📞 ${booking.phone}</p>
-                        ${booking.email ? `<p>📧 ${booking.email}</p>` : ''}
-                        <p class="booking-id">Réf: ${booking.id}</p>
+                        <h4>${escapeHTML(booking.serviceName)}</h4>
+                        <p><strong>${escapeHTML(booking.name)}</strong></p>
+                        <p>📞 ${escapeHTML(booking.phone)}</p>
+                        ${booking.email ? `<p>📧 ${escapeHTML(booking.email)}</p>` : ''}
+                        <p class="booking-id">Réf: ${escapeHTML(booking.id)}</p>
                     </div>
                     <div class="booking-actions">
-                        <button class="btn-small btn-edit" onclick="editBooking('${booking.id}')">✏️</button>
-                        <button class="btn-small btn-delete" onclick="deleteBooking('${booking.id}')">🗑️</button>
+                        <button class="btn-small btn-edit" onclick="editBooking('${escapeHTML(booking.id)}')">✏️</button>
+                        <button class="btn-small btn-delete" onclick="deleteBooking('${escapeHTML(booking.id)}')">🗑️</button>
                     </div>
                 </div>
             `).join('')}
@@ -719,14 +726,14 @@ function renderBookingsList() {
     list.innerHTML = filtered.map(booking => `
         <div class="booking-item">
             <div class="booking-info">
-                <h4>${booking.serviceName}</h4>
-                <p><strong>Client:</strong> ${booking.name} - ${booking.phone}</p>
-                <p><strong>Date:</strong> ${new Date(booking.date).toLocaleDateString('fr-FR')} à ${booking.time}</p>
-                <p><strong>Numéro:</strong> ${booking.id}</p>
+                <h4>${escapeHTML(booking.serviceName)}</h4>
+                <p><strong>Client:</strong> ${escapeHTML(booking.name)} - ${escapeHTML(booking.phone)}</p>
+                <p><strong>Date:</strong> ${escapeHTML(new Date(booking.date).toLocaleDateString('fr-FR'))} à ${escapeHTML(booking.time)}</p>
+                <p><strong>Numéro:</strong> ${escapeHTML(booking.id)}</p>
             </div>
             <div class="booking-actions">
-                <button class="btn-small btn-edit" onclick="editBooking('${booking.id}')">✏️ Modifier</button>
-                <button class="btn-small btn-delete" onclick="deleteBooking('${booking.id}')">🗑️ Supprimer</button>
+                <button class="btn-small btn-edit" onclick="editBooking('${escapeHTML(booking.id)}')">✏️ Modifier</button>
+                <button class="btn-small btn-delete" onclick="deleteBooking('${escapeHTML(booking.id)}')">🗑️ Supprimer</button>
             </div>
         </div>
     `).join('');
@@ -740,7 +747,6 @@ function editBooking(id) {
 function deleteBooking(id) {
     if (confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?')) {
         appState.bookings = appState.bookings.filter(b => b.id !== id);
-        localStorage.setItem('bookings', JSON.stringify(appState.bookings));
         deleteBookingFromDatabase(id).catch(error => {
             console.error('Erreur suppression Firestore:', error);
         });
@@ -828,10 +834,10 @@ function renderClosedDays() {
     list.innerHTML = appState.closedDays.map(day => `
         <div class="closed-day-item">
             <div>
-                <strong>${new Date(day.date).toLocaleDateString('fr-FR')}</strong>
-                ${day.reason ? `<p>${day.reason}</p>` : ''}
+                <strong>${escapeHTML(new Date(day.date).toLocaleDateString('fr-FR'))}</strong>
+                ${day.reason ? `<p>${escapeHTML(day.reason)}</p>` : ''}
             </div>
-            <button class="btn-small btn-delete" onclick="removeClosedDay('${day.date}')">🗑️</button>
+            <button class="btn-small btn-delete" onclick="removeClosedDay('${escapeHTML(day.date)}')">🗑️</button>
         </div>
     `).join('');
 }

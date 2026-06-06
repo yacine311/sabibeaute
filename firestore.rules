@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Interdiction totale des accès directs depuis le client.
+    // Les fonctions Netlify utilisent le SDK Admin et contournent ces règles.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

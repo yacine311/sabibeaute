@@ -32,6 +32,7 @@
 FIREBASE_PROJECT_ID = sabibeaute-db
 FIREBASE_CLIENT_EMAIL = firebase-adminsdk-xxxxx@sabibeaute-db.iam.gserviceaccount.com
 FIREBASE_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+JWT_SECRET = votre_secret_long_et_unique
 ADMIN_USERNAME = admin
 ADMIN_PASSWORD = votre_mot_de_passe_securise
 ```
@@ -57,6 +58,8 @@ Netlify déploiera automatiquement !
 
 ## 🔐 Sécurité Firestore
 
+Ce projet doit utiliser les Netlify Functions pour accéder à Firestore via le SDK Admin. Il est important de bloquer tout accès direct depuis le client.
+
 Appliquez ces règles dans Firebase Console :
 
 **Firestore Database** → **Rules** :
@@ -65,26 +68,14 @@ Appliquez ces règles dans Firebase Console :
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Deny everything by default
     match /{document=**} {
       allow read, write: if false;
-    }
-    
-    // Public: lire les réservations
-    match /bookings/{bookingId} {
-      allow read: if true;
-      allow create: if request.resource.data.name != null;
-      allow update, delete: if request.auth != null;
-    }
-    
-    // Public: lire les paramètres
-    match /settings/{document=**} {
-      allow read: if true;
-      allow write: if false;
     }
   }
 }
 ```
+
+> Ces règles empêchent toute lecture et écriture directe depuis un navigateur. Les fonctions Netlify continuent de fonctionner car elles utilisent le SDK Admin Firebase.
 
 ---
 
