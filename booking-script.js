@@ -9,6 +9,8 @@ const appState = {
     currentMonth: new Date().getMonth(),
     currentYear: new Date().getFullYear(),
     bookings: [],
+    csrfToken: null,
+    csrfTokenExpires: null,
     closedDays: JSON.parse(localStorage.getItem('closedDays')) || [],
     businessHours: JSON.parse(localStorage.getItem('businessHours')) || {
         sunday: { open: '09:00', close: '19:00', closed: false },
@@ -47,7 +49,8 @@ async function loadBookingsFromDatabaseAsync() {
 
 async function saveBookingToDatabase(booking) {
     try {
-        await BookingAPI.createBooking(booking);
+        const csrfToken = await ensureCsrfToken();
+        await BookingAPI.createBooking(booking, csrfToken);
         console.log('Réservation enregistrée:', booking.id);
     } catch (error) {
         console.error('Erreur d\'enregistrement:', error);
@@ -57,7 +60,8 @@ async function saveBookingToDatabase(booking) {
 
 async function deleteBookingFromDatabase(id, adminToken) {
     try {
-        await BookingAPI.deleteBooking(id, adminToken);
+        const csrfToken = await ensureCsrfToken();
+        await BookingAPI.deleteBooking(id, adminToken, csrfToken);
         console.log('Réservation supprimée:', id);
     } catch (error) {
         console.error('Erreur de suppression:', error);
@@ -83,13 +87,49 @@ function escapeHTML(text) {
         .replace(/'/g, '&#39;');
 }
 
+async function loadCsrfToken() {
+    try {
+        const tokenData = await BookingAPI.getCsrfToken();
+        appState.csrfToken = tokenData.token;
+        appState.csrfTokenExpires = Date.now() + (tokenData.expiresIn * 1000);
+        sessionStorage.setItem('csrfToken', tokenData.token);
+        sessionStorage.setItem('csrfTokenExpires', appState.csrfTokenExpires.toString());
+        return tokenData.token;
+    } catch (error) {
+        console.error('Erreur chargement CSRF token:', error);
+        appState.csrfToken = null;
+        appState.csrfTokenExpires = null;
+        return null;
+    }
+}
+
+function getStoredCsrfToken() {
+    const storedToken = sessionStorage.getItem('csrfToken');
+    const storedExpires = Number(sessionStorage.getItem('csrfTokenExpires'));
+    if (storedToken && storedExpires && Date.now() < storedExpires) {
+        return storedToken;
+    }
+    return null;
+}
+
+async function ensureCsrfToken() {
+    const existingToken = getStoredCsrfToken();
+    if (existingToken) {
+        appState.csrfToken = existingToken;
+        appState.csrfTokenExpires = Number(sessionStorage.getItem('csrfTokenExpires'));
+        return existingToken;
+    }
+    return await loadCsrfToken();
+}
+
 // Initialisation
 document.addEventListener('DOMContentLoaded', function() {
     // Chargement immédiat sans attendre Firebase
     initializeBookingSystem();
     initializeCalendar();
     
-    // Charger les réservations Firebase en arrière-plan (non-bloquant)
+    // Charger le token CSRF et les réservations Firebase en arrière-plan
+    ensureCsrfToken();
     loadBookingsFromDatabaseAsync();
 });
 

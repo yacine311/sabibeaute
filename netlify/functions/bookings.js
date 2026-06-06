@@ -84,6 +84,45 @@ function verifyAdminToken(token) {
   }
 }
 
+function getCsrfTokenHeader(event) {
+  if (!event.headers) return null;
+  return event.headers['x-csrf-token'] || event.headers['X-CSRF-Token'] || event.headers['X-CSRF-TOKEN'];
+}
+
+async function verifyCsrfToken(token) {
+  if (!token) {
+    return false;
+  }
+
+  const tokenRef = db.collection('csrf_tokens').doc(token);
+
+  try {
+    await db.runTransaction(async (transaction) => {
+      const doc = await transaction.get(tokenRef);
+      if (!doc.exists) {
+        throw new Error('Token CSRF invalide');
+      }
+
+      const data = doc.data();
+      if (!data || data.used) {
+        throw new Error('Token CSRF déjà utilisé');
+      }
+
+      const expiresAt = data.expiresAt && data.expiresAt.toMillis ? data.expiresAt.toMillis() : null;
+      if (!expiresAt || expiresAt < Date.now()) {
+        throw new Error('Token CSRF expiré');
+      }
+
+      transaction.update(tokenRef, { used: true, usedAt: admin.firestore.FieldValue.serverTimestamp() });
+    });
+
+    return true;
+  } catch (error) {
+    console.error('CSRF validation failed:', error.message);
+    return false;
+  }
+}
+
 // Fonction pour valider une réservation
 function validateBooking(data) {
   const errors = [];
@@ -179,7 +218,7 @@ async function checkRateLimit(identifier, maxRequests = 5, windowMinutes = 60) {
 const cors = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token'
 };
 
 // Handler pour les réservations
@@ -199,6 +238,15 @@ exports.handler = async (event, context) => {
 
     // POST : Créer une réservation
     if (method === 'POST') {
+      const csrfToken = getCsrfTokenHeader(event);
+      if (!await verifyCsrfToken(csrfToken)) {
+        return {
+          statusCode: 403,
+          headers: cors,
+          body: JSON.stringify({ error: 'CSRF token invalide ou manquant' })
+        };
+      }
+
       const { name, phone, email, service, date, time, duration, price, message, whatsapp } = body;
 
       // Validation complète
@@ -285,6 +333,15 @@ exports.handler = async (event, context) => {
 
     // DELETE : Supprimer une réservation (admin)
     if (method === 'DELETE') {
+      const csrfToken = getCsrfTokenHeader(event);
+      if (!await verifyCsrfToken(csrfToken)) {
+        return {
+          statusCode: 403,
+          headers: cors,
+          body: JSON.stringify({ error: 'CSRF token invalide ou manquant' })
+        };
+      }
+
       // Vérifier le token JWT
       const token = event.headers.authorization?.split(' ')[1];
       const verifyResult = verifyAdminToken(token);

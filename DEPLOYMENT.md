@@ -80,6 +80,13 @@ Le rate limiting est implémenté pour prévenir les abus :
 
 Si vous dépassez la limite, vous recevrez une erreur 429 avec le moment de réinitialisation.
 
+### CSRF Protection
+
+Les requêtes sensibles utilisent désormais un token CSRF généré par `GET /.netlify/functions/csrf`.
+- Le token est requis pour créer une réservation
+- Le token est requis pour supprimer une réservation
+- Le token est requis pour mettre à jour les paramètres admin
+
 ### Sécurité Firestore
 
 Ce projet doit utiliser les Netlify Functions pour accéder à Firestore via le SDK Admin. Il est important de bloquer tout accès direct depuis le client.
