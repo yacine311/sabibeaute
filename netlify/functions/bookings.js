@@ -141,6 +141,40 @@ function validateBooking(data) {
   return errors;
 }
 
+// Fonction de rate limiting
+async function checkRateLimit(identifier, maxRequests = 5, windowMinutes = 60) {
+  const now = Date.now();
+  const windowMs = windowMinutes * 60 * 1000;
+  const cutoffTime = now - windowMs;
+  
+  const rateLimitRef = db.collection('ratelimit').doc(identifier);
+  const doc = await rateLimitRef.get();
+  
+  let timestamps = doc.exists ? doc.data().timestamps || [] : [];
+  
+  // Nettoyer les anciens timestamps
+  timestamps = timestamps.filter(ts => ts > cutoffTime);
+  
+  // Vérifier la limite
+  if (timestamps.length >= maxRequests) {
+    return {
+      allowed: false,
+      remaining: 0,
+      resetTime: new Date(Math.min(...timestamps) + windowMs)
+    };
+  }
+  
+  // Enregistrer la nouvelle tentative
+  timestamps.push(now);
+  await rateLimitRef.set({ timestamps }, { merge: true });
+  
+  return {
+    allowed: true,
+    remaining: maxRequests - timestamps.length,
+    resetTime: new Date(now + windowMs)
+  };
+}
+
 // Helper pour CORS
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -174,6 +208,19 @@ exports.handler = async (event, context) => {
           statusCode: 400,
           headers: cors,
           body: JSON.stringify({ error: 'Validation échouée', details: validationErrors })
+        };
+      }
+
+      // Rate limiting par email (5 réservations par heure max)
+      const rateLimitResult = await checkRateLimit(`booking:${email}`, 5, 60);
+      if (!rateLimitResult.allowed) {
+        return {
+          statusCode: 429,
+          headers: cors,
+          body: JSON.stringify({ 
+            error: 'Trop de tentatives. Réessayez plus tard.',
+            resetTime: rateLimitResult.resetTime
+          })
         };
       }
 

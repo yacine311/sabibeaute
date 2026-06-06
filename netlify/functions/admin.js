@@ -1,5 +1,76 @@
 // Authentification Admin
 const jwt = require('jsonwebtoken');
+const admin = require('firebase-admin');
+
+// Initialiser Firebase
+if (!admin.apps.length) {
+  let serviceAccount;
+  
+  if (process.env.FIREBASE_CREDENTIALS_BASE64) {
+    try {
+      const decoded = Buffer.from(process.env.FIREBASE_CREDENTIALS_BASE64, 'base64').toString('utf8');
+      serviceAccount = JSON.parse(decoded);
+    } catch (error) {
+      console.error('Erreur décodage Base64:', error);
+      throw error;
+    }
+  } else {
+    serviceAccount = {
+      type: 'service_account',
+      project_id: process.env.FIREBASE_PROJECT_ID,
+      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID || 'unknown',
+      private_key: process.env.FIREBASE_PRIVATE_KEY
+        ?.replace(/\\n/g, '\n')
+        .replace(/\n/g, '\n')
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .join('\n'),
+      client_email: process.env.FIREBASE_CLIENT_EMAIL
+    };
+  }
+  
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    projectId: serviceAccount.project_id
+  });
+}
+
+const db = admin.firestore();
+
+// Fonction de rate limiting
+async function checkRateLimit(identifier, maxRequests = 3, windowMinutes = 15) {
+  const now = Date.now();
+  const windowMs = windowMinutes * 60 * 1000;
+  const cutoffTime = now - windowMs;
+  
+  const rateLimitRef = db.collection('ratelimit').doc(identifier);
+  const doc = await rateLimitRef.get();
+  
+  let timestamps = doc.exists ? doc.data().timestamps || [] : [];
+  
+  // Nettoyer les anciens timestamps
+  timestamps = timestamps.filter(ts => ts > cutoffTime);
+  
+  // Vérifier la limite
+  if (timestamps.length >= maxRequests) {
+    return {
+      allowed: false,
+      remaining: 0,
+      resetTime: new Date(Math.max(...timestamps) + windowMs)
+    };
+  }
+  
+  // Enregistrer la nouvelle tentative
+  timestamps.push(now);
+  await rateLimitRef.set({ timestamps }, { merge: true });
+  
+  return {
+    allowed: true,
+    remaining: maxRequests - timestamps.length,
+    resetTime: new Date(now + windowMs)
+  };
+}
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -38,6 +109,19 @@ exports.handler = async (event, context) => {
         statusCode: 500,
         headers: cors,
         body: JSON.stringify({ error: 'Erreur serveur: JWT_SECRET manquante' })
+      };
+    }
+
+    // Rate limiting sur le login (3 tentatives par 15 minutes)
+    const rateLimitResult = await checkRateLimit(`admin:${username}`, 3, 15);
+    if (!rateLimitResult.allowed) {
+      return {
+        statusCode: 429,
+        headers: cors,
+        body: JSON.stringify({ 
+          error: 'Trop de tentatives de connexion. Réessayez plus tard.',
+          resetTime: rateLimitResult.resetTime
+        })
       };
     }
 

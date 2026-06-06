@@ -56,7 +56,18 @@ Netlify déploiera automatiquement !
 
 ---
 
-## 🔐 Sécurité Firestore
+## 🔐 Sécurité
+
+### Rate Limiting
+
+Le rate limiting est implémenté pour prévenir les abus :
+
+- **Créations de réservation** : 5 par email par heure
+- **Login admin** : 3 tentatives par username par 15 minutes
+
+Si vous dépassez la limite, vous recevrez une erreur 429 avec le moment de réinitialisation.
+
+### Sécurité Firestore
 
 Ce projet doit utiliser les Netlify Functions pour accéder à Firestore via le SDK Admin. Il est important de bloquer tout accès direct depuis le client.
 
